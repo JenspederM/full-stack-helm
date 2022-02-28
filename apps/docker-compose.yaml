@@ -3,12 +3,15 @@ version: '3'
 services:
 
   frontend:
-    command: npm run dev
     restart: unless-stopped    
     build: 
       context: frontend
     environment:
-      - API_URL=strapi:1337
+      API_URL: strapi:1337
+    volumes:
+      - ./frontend:/home/appuser/srv/app
+    ports:
+      - '3000:3000'
 
   strapi:
     command: npm run dev
@@ -23,7 +26,7 @@ services:
       DATABASE_USERNAME: strapi
       DATABASE_PASSWORD: strapi
     volumes:
-      - ./backend:/srv/app
+      - ./backend:/home/appuser/srv/app
     ports:
       - '1337:1337'
     depends_on:
