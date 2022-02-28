@@ -5,7 +5,8 @@ services:
   frontend:
     restart: unless-stopped    
     build: 
-      context: frontend
+      context: ./frontend
+      dockerfile: Dockerfile.arm64v8
     environment:
       API_URL: strapi:1337
     volumes:
@@ -17,7 +18,8 @@ services:
     command: npm run dev
     restart: unless-stopped
     build: 
-      context: backend
+      context: ./backend
+      dockerfile: Dockerfile.arm64v8
     environment:
       DATABASE_CLIENT: postgres
       DATABASE_NAME: strapi
