@@ -1,0 +1,46 @@
+FROM node:16-alpine as BUILD
+# Set NODE_ENV to production
+ENV NODE_ENV=production
+# Install dependencies
+RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev nasm bash
+# Set Working Directory
+WORKDIR /app
+# Copy package.json and lock
+COPY package*.json /app/
+# Install dev dependencies 
+RUN npm ci
+# Copy app
+COPY . /app
+# Build app
+RUN npm run build
+
+
+### RELEASE STAGE ####
+FROM node:16-alpine as RELEASE
+# Set NODE_ENV to production
+ENV NODE_ENV=production
+# Delete node user and add one anew. This ensures that we know the group and user ID.
+# See: https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md#non-root-user
+# Also, we install 'tini', which ensures that SIGINT (CTRL-C) is forwarded correctly
+# See: https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md#handling-kernel-signals
+# And: https://github.com/krallin/tini#using-tini
+RUN deluser --remove-home node \
+  && addgroup -S -g 1001 docker \
+  && adduser -S -G docker -u 1001 appuser \
+  && apk add --no-cache tini \
+  && mkdir -p /home/appuser/srv/app/.tmp \
+  && chown 1001:1001 /home/appuser/srv/app/.tmp
+# Switch to newly created user
+USER 1001
+# Switch to newly created user's app directory
+WORKDIR /home/appuser/srv/app
+# Copy app
+COPY --from=BUILD --chown=1001:1001 /app /home/appuser/srv/app
+# Set default host and expose port 1337 (used by strapi)
+ENV HOST=0.0.0.0
+EXPOSE 1337
+# Set tini as Entrypoint
+# See: https://github.com/krallin/tini#using-tini
+ENTRYPOINT ["/sbin/tini", "--"]
+# Start the application
+CMD [ "npm", "start" ]
