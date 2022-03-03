@@ -6,36 +6,41 @@ services:
     restart: unless-stopped    
     build: 
       context: ./frontend
-      dockerfile: Dockerfile.arm64v8
+      dockerfile: Dockerfile.develop
     environment:
-      API_URL: strapi:1337
+      API_URL: localhost:1337
+    command: /app/scripts/dev-command.sh
     volumes:
-      - ./frontend:/home/appuser/srv/app
+      - ./frontend:/app
+      # Ensures that node_modules isn't overwritten by host
+      - ./.tmp/frontend_node_modules:/app/node_modules
     ports:
       - '3000:3000'
 
-  strapi:
+  backend:
     command: npm run dev
     restart: unless-stopped
     build: 
       context: ./backend
-      dockerfile: Dockerfile.arm64v8
+      dockerfile: Dockerfile.develop
     environment:
       DATABASE_CLIENT: postgres
       DATABASE_NAME: strapi
-      DATABASE_HOST: postgres
+      DATABASE_HOST: localhost
       DATABASE_PORT: 5432
       DATABASE_USERNAME: strapi
       DATABASE_PASSWORD: strapi
     volumes:
       - ./backend:/home/appuser/srv/app
+      # Ensures that node_modules isn't overwritten by host
+      - ./.tmp/backend_node_modules:/app/node_modules
     ports:
       - '1337:1337'
     depends_on:
       - postgres
 
   postgres:
-    image: postgres
+    image: postgres:14-alpine
     environment:
       POSTGRES_DB: strapi
       POSTGRES_USER: strapi
