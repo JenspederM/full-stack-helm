@@ -27,9 +27,7 @@ ENV NODE_ENV=production
 RUN deluser --remove-home node \
   && addgroup -S -g 1001 docker \
   && adduser -S -G docker -u 1001 appuser \
-  && apk add --no-cache tini \
-  && mkdir -p /home/appuser/srv/app/.tmp \
-  && chown 1001:1001 /home/appuser/srv/app/.tmp
+  && apk add --no-cache tini 
 # Switch to newly created user
 USER 1001
 # Switch to newly created user's app directory
