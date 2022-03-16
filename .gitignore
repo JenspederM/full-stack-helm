@@ -1,5 +1,6 @@
 # Custom
 .tmp/
+deps/
 # vetur.config.js
 
 # Created by .ignore support plugin (hsz.mobi)
