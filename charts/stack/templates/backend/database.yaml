@@ -1,0 +1,18 @@
+{{- if .Values.database.enabled }}
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: {{ include "stack.database.fullname" . }}
+  labels:
+    {{- include "stack.database.labels" . | nindent 4 }}
+spec:
+  teamId: {{ include "stack.database.teamId" . }}
+  volume:
+    size: {{ .Values.database.size | default "1Gi" }}
+  numberOfInstances: {{ .Values.database.instances | default 2 }}
+  users: {{ toYaml .Values.database.users | nindent 6 }}
+  databases: {{ toYaml .Values.database.databases | nindent 4 }}
+  preparedDatabases: {{ toYaml .Values.database.preparedDatabases | nindent 4 }}
+  postgresql:
+    version: "14"
+{{- end }}

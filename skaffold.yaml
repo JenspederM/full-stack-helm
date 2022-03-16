@@ -1,0 +1,17 @@
+apiVersion: skaffold/v2beta10
+kind: Config
+metadata:
+    name: stack
+
+deploy:
+  helm:
+    releases:
+      - name: pg-operator
+        namespace: apps
+        createNamespace: true
+        wait: true
+        chartPath: charts/postgres-operator
+      - name: stack
+        namespace: apps
+        createNamespace: false
+        chartPath: charts/stack

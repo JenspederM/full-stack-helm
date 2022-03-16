@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "stack.fullname" . }}
+  name: {{ include "stack.backend.fullname" . }}
   labels:
-    {{- include "stack.labels" . | nindent 4 }}
+    {{- include "stack.backend.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.frontend.autoscaling.enabled }}
-  replicas: {{ .Values.frontend.replicaCount }}
+  {{- if not .Values.backend.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "stack.selectorLabels" . | nindent 6 }}
+      {{- include "stack.backend.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.frontend.podAnnotations }}
+      {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "stack.selectorLabels" . | nindent 8 }}
+        {{- include "stack.backend.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -28,13 +28,13 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}-frontend
+        - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          image: {{ include "stack.backend.image" . }}
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
-            - name: frontend
+            - name: http
               containerPort: 80
               protocol: TCP
           livenessProbe:
@@ -46,7 +46,7 @@ spec:
               path: /
               port: http
           resources:
-            {{- toYaml .Values.frontend.resources | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
