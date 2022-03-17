@@ -1,89 +1,35 @@
-version: '2.1'
-services:
+version: "3"
 
-  backend:
-    image: '${DOCKER_IMAGE_BACKEND-backend}:${TAG-latest}'
-    command: sh -c '/app/scripts/wait-for.sh pgpool:5432 -- npm run dev'
+services:
+  app:
     build:
       context: ./backend
       dockerfile: Dockerfile.develop
-    depends_on:
-      - pg-0
-      - pg-1
-      - pgpool
+    container_name: strapi_v4_app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: app
+      DATABASE_USERNAME: db_username
+      DATABASE_PASSWORD: db_password
+    volumes:
+      - ./backend:/srv/app
+      - ./.tmp/node_modules:/srv/app/node_modules
     ports:
       - 1337:1337
-    environment:
-      - DATABASE_HOST=pgpool
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=customdatabase
-      - DATABASE_USERNAME=postgres
-      - DATABASE_PASSWORD=adminpassword
-  pgadmin:
-    image: dpage/pgadmin4:6.7
-    networks:
-      - default
     depends_on:
-      - pg-0
-      - pg-1
-      - pgpool
-    ports:
-      - 5050:80
+      - db
+
+  db:
+    image: postgres:14
+    container_name: strapi_v4_db
+    restart: unless-stopped
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@email.com
-      - PGADMIN_DEFAULT_PASSWORD=admin1234
-      - PGADMIN_CONFIG_CONSOLE_LOG_LEVEL=30
-  pg-0:
-    image: bitnami/postgresql-repmgr:11.14.0-debian-10-r59
-    ports:
-      - 5432
+      POSTGRES_DB: app
+      POSTGRES_USER: db_username
+      POSTGRES_PASSWORD: db_password
     volumes:
-      - ./.tmp/pgdata0:/bitnami/postgresql
-    environment:
-      - POSTGRESQL_POSTGRES_PASSWORD=adminpassword
-      - POSTGRESQL_USERNAME=customuser
-      - POSTGRESQL_PASSWORD=custompassword
-      - POSTGRESQL_DATABASE=customdatabase
-      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
-      - REPMGR_PASSWORD=repmgrpassword
-      - REPMGR_PRIMARY_HOST=pg-0
-      - REPMGR_PARTNER_NODES=pg-1,pg-0
-      - REPMGR_NODE_NAME=pg-0
-      - REPMGR_NODE_NETWORK_NAME=pg-0
-  pg-1:
-    image: bitnami/postgresql-repmgr:11.14.0-debian-10-r59
-    ports:
-      - 5432
-    volumes:
-      - ./.tmp/pgdata1:/bitnami/postgresql
-    environment:
-      - POSTGRESQL_POSTGRES_PASSWORD=adminpassword
-      - POSTGRESQL_USERNAME=customuser
-      - POSTGRESQL_PASSWORD=custompassword
-      - POSTGRESQL_DATABASE=customdatabase
-      - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=1
-      - REPMGR_PASSWORD=repmgrpassword
-      - REPMGR_PRIMARY_HOST=pg-0
-      - REPMGR_PARTNER_NODES=pg-0,pg-1
-      - REPMGR_NODE_NAME=pg-1
-      - REPMGR_NODE_NETWORK_NAME=pg-1
-  pgpool:
-    image: bitnami/pgpool:4.3.0-debian-10-r1
-    ports:
-      - 5432:5432
-    environment:
-      - PGPOOL_BACKEND_NODES=0:pg-0:5432,1:pg-1:5432
-      - PGPOOL_SR_CHECK_USER=customuser
-      - PGPOOL_SR_CHECK_PASSWORD=custompassword
-      - PGPOOL_ENABLE_LDAP=no
-      - PGPOOL_POSTGRES_USERNAME=postgres
-      - PGPOOL_POSTGRES_PASSWORD=adminpassword
-      - PGPOOL_ADMIN_USERNAME=admin
-      - PGPOOL_ADMIN_PASSWORD=adminpassword
-      - PGPOOL_ENABLE_LOAD_BALANCING=yes
-    healthcheck:
-      test: ["CMD", "/opt/bitnami/scripts/pgpool/healthcheck.sh"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    
+      - ./.tmp/data:/var/lib/postgresql/data

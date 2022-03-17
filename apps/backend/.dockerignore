@@ -1,4 +1,6 @@
 node_modules
-npm-debug
+license.txt
+exports
+*.cache
 build
-.env
+.strapi-updater.json

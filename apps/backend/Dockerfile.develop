@@ -1,22 +1,16 @@
-FROM node:16-alpine as BUILD
-# Set NODE_ENV to production
-ENV NODE_ENV=production
-# Install dependencies
-RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev nasm bash tini
-# Set Working Directory
-WORKDIR /app
-# Copy package.json and lock
-COPY package*.json /app/
-# Install dev dependencies 
-RUN npm install
-# Copy app
-COPY . /app
-RUN chmod -R 755 /app/scripts
-# Set default host and expose port 1337 (used by strapi)
-ENV HOST=0.0.0.0
-EXPOSE 1337
-# Set tini as Entrypoint
-# See: https://github.com/krallin/tini#using-tini
-ENTRYPOINT ["/sbin/tini", "--"]
-# Start the application
-CMD [ "npm", "run", "dev" ]
+FROM strapi/base:14-alpine
+
+ARG STRAPI_VERSION
+RUN yarn global add @strapi/strapi@${STRAPI_VERSION-4.1.5}
+
+RUN mkdir /srv/app && chown 1000:1000 -R /srv/app
+
+WORKDIR /srv/app
+
+VOLUME /srv/app
+
+COPY --chown=1000:1000 docker-entrypoint.sh /usr/local/bin
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
+#CMD ["npm", "start"]
+CMD ["strapi", "develop"]
