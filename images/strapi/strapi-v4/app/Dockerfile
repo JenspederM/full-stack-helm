@@ -1,17 +1,19 @@
-FROM strapi/base
+FROM strapi/base:14-alpine
 
 WORKDIR /app
 
 COPY ./package*.json ./
 
-RUN npm ci
+RUN npm install
+# RUN npm ci
 
 COPY . .
 
-ENV NODE_ENV production
+#ENV NODE_ENV production
 
-RUN npm run build
+#RUN npm run build
 
 EXPOSE 1337
 
-CMD ["npm", "start"]
+#CMD ["npm", "start"]
+CMD ["npm", "run", "develop"]

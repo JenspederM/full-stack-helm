@@ -16,8 +16,9 @@ services:
       DATABASE_PASSWORD: db_password
     volumes:
       - ./app:/srv/app
+      - /srv/app/node_modules
     ports:
-      - 127.0.0.1:8000:1337
+      - 1337:1337
     depends_on:
       - db
 
