@@ -5,11 +5,11 @@ metadata:
   labels:
     {{- include "stack.backend.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.backend.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - port: {{ .Values.backend.service.port }}
+      targetPort: backend
       protocol: TCP
-      name: http
+      name: backend
   selector:
     {{- include "stack.backend.selectorLabels" . | nindent 4 }}
