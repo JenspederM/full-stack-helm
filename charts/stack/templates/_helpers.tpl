@@ -126,7 +126,7 @@ Database Full Name
 */}}
 {{- define "stack.database.fullname" -}}
 {{- if .Values.database.enabled }}
-{{- printf "%s-%s" (include "stack.database.teamId" .) .Values.database.name }}
+{{- printf "%s-database" (include "stack.database.teamId" .) }}
 {{- end }}
 {{- end }}
 
