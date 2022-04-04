@@ -3,6 +3,11 @@ kind: Config
 metadata:
     name: stack
 
+build:
+  artifacts:
+  - image: stack_backend
+    context: apps/backend
+
 deploy:
   helm:
     releases:
@@ -12,6 +17,18 @@ deploy:
         wait: true
         chartPath: charts/postgres-operator
       - name: stack
-        namespace: apps
+        namespace: default
         createNamespace: false
         chartPath: charts/stack
+        artifactOverrides:
+          backend:
+            image: stack_backend
+        imageStrategy:
+          helm: {}
+
+portForward:
+- resourceType: deployment
+  resourceName: stack-backend
+  namespace: default
+  port: 1337
+  localPort: 1337
