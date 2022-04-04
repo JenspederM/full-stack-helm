@@ -2,9 +2,7 @@ version: "3"
 
 services:
   app:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.develop
+    image: stack_backend:b65e0ae8eeaa6c60a72bb45a0159d542444e29159aba03815c65cd1ae2d38229
     container_name: strapi_v4_app
     restart: unless-stopped
     environment:
@@ -19,7 +17,7 @@ services:
       - ./backend:/srv/app
       - ./.tmp/node_modules:/srv/app/node_modules
     ports:
-      - 1337:1337
+      - 1338:1337
     depends_on:
       - db
 
