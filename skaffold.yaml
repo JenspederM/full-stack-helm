@@ -5,6 +5,8 @@ metadata:
 
 build:
   artifacts:
+  - image: stack_frontend
+    context: apps/frontend
   - image: stack_backend
     context: apps/backend
 
@@ -21,6 +23,8 @@ deploy:
         createNamespace: false
         chartPath: charts/stack
         artifactOverrides:
+          frontend:
+            image: stack_frontend
           backend:
             image: stack_backend
         imageStrategy:
@@ -32,3 +36,8 @@ portForward:
   namespace: default
   port: 1337
   localPort: 1337
+- resourceType: deployment
+  resourceName: stack-frontend
+  namespace: default
+  port: 3000
+  localPort: 3000

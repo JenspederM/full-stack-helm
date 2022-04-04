@@ -34,19 +34,11 @@ spec:
           image: {{ include "stack.frontend.image" . }}
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: frontend
+              containerPort: {{ .Values.frontend.service.port }}
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

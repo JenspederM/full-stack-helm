@@ -5,11 +5,11 @@ metadata:
   labels:
     {{- include "stack.frontend.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.frontend.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: frontend
       protocol: TCP
-      name: http
+      name: frontend
   selector:
     {{- include "stack.frontend.selectorLabels" . | nindent 4 }}

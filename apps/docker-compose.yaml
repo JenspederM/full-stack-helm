@@ -1,7 +1,11 @@
 version: "3"
 
 services:
-  app:
+
+  frontend:
+    build: 
+      context: ./frontend
+  backend:
     image: stack_backend:b65e0ae8eeaa6c60a72bb45a0159d542444e29159aba03815c65cd1ae2d38229
     container_name: strapi_v4_app
     restart: unless-stopped
